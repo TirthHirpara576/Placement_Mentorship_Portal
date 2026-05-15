@@ -1,0 +1,23 @@
+<nav class="navbar navbar-expand-lg">
+    <div class="container-fluid px-4">
+        <a class="navbar-brand" href="/">Placement Mentorship Portal</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse justify-content-end" id="navMenu">
+            <ul class="navbar-nav align-items-center gap-1">
+                <li class="nav-item"><a class="nav-link <%= activePage==='home' ? 'nav-active' : '' %>"
+                        href="/">Home</a></li>
+                <li class="nav-item"><a class="nav-link <%= activePage==='resources' ? 'nav-active' : '' %>"
+                        href="/Home/Resources">Resources</a></li>
+                <li class="nav-item"><a class="nav-link <%= activePage==='coordinators' ? 'nav-active' : '' %>"
+                        href="/Home/Coordinators">Coordinators</a></li>
+                <li class="nav-item"><a class="nav-link <%= activePage==='statistics' ? 'nav-active' : '' %>"
+                        href="/Home/Statistics">Statistics</a></li>
+                <li class="nav-item ms-2">
+                    <a class="nav-link btn-login" href="/login">Login</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>

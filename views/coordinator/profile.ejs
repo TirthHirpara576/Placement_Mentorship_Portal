@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile – TPC Portal</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        body {
+            background: #eef2f7;
+        }
+
+        .profile-wrapper {
+            width: 65%;
+            min-width: 580px;
+            max-width: 860px;
+            margin: 2rem auto;
+            padding: 0 1rem 3rem;
+        }
+
+        .greeting {
+            text-align: center;
+            font-size: 1.9rem;
+            font-weight: 800;
+            color: #1a1a2e;
+            margin: 1.5rem 0 1.2rem;
+        }
+
+        /* alert banners */
+        .profile-success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #6ee7b7;
+            border-radius: 10px;
+            padding: .7rem 1.2rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            font-size: .9rem;
+        }
+
+        .profile-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+            border-radius: 10px;
+            padding: .7rem 1.2rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            font-size: .9rem;
+        }
+
+        /* accordion card */
+        .acc-card {
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, .07);
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+
+        .acc-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: .9rem 1.4rem;
+            cursor: pointer;
+            user-select: none;
+            font-weight: 700;
+            font-size: 1rem;
+            color: #1a1a2e;
+        }
+
+        .acc-header:hover {
+            background: #f8fafc;
+        }
+
+        .acc-arrow {
+            font-size: .75rem;
+            color: #888;
+            transition: transform .25s;
+        }
+
+        .acc-body {
+            display: none;
+            padding: .5rem 1.4rem 1.2rem;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .acc-body.open {
+            display: block;
+        }
+
+        .acc-header.open .acc-arrow {
+            transform: rotate(180deg);
+        }
+
+        /* row inside accordion */
+        .item-row {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: .55rem 0;
+            border-bottom: 1px solid #f5f5f5;
+        }
+
+        .item-row:last-child {
+            border-bottom: none;
+        }
+
+        .item-text {
+            flex: 1;
+            font-size: .85rem;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .item-text .tag {
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+
+        .item-actions {
+            display: flex;
+            gap: .4rem;
+            flex-shrink: 0;
+            align-items: flex-start;
+            margin-top: 2px;
+        }
+
+        /* buttons */
+        .btn-upd {
+            background: #2563eb;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: .25rem .7rem;
+            font-size: .75rem;
+            font-weight: 700;
+            text-decoration: none;
+            display: inline-block;
+            transition: background .18s;
+        }
+
+        .btn-upd:hover {
+            background: #1d4ed8;
+            color: #fff;
+        }
+
+        .btn-del {
+            background: #dc2626;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: .25rem .7rem;
+            font-size: .75rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background .18s;
+        }
+
+        .btn-del:hover {
+            background: #b91c1c;
+        }
+
+        .pill-branch {
+            display: inline-block;
+            background: #0ea5e9;
+            color: #fff;
+            border-radius: 5px;
+            padding: .1rem .5rem;
+            font-size: .72rem;
+            font-weight: 700;
+        }
+
+        .no-data {
+            color: #aaa;
+            font-size: .85rem;
+            font-style: italic;
+            text-align: center;
+            padding: .8rem 0;
+        }
+    </style>
+</head>
+
+<body>
+    <%- include('../partials/_navbar_coord', { activePage: 'dashboard' , coordName: coordName }) %>
+
+        <div class="profile-wrapper">
+            <h1 class="greeting">Hello, <%= coordName.replace(/^Prof\.\s*/i,'') %>
+            </h1>
+
+            <% if (success) { %>
+                <div class="profile-success">✅ <%= success %>
+                </div>
+                <% } %>
+                    <% if (error) { %>
+                        <div class="profile-error">⚠️ <%= error %>
+                        </div>
+                        <% } %>
+
+                            <!-- ① COMPANIES MANAGED -->
+                            <div class="acc-card">
+                                <div class="acc-header" onclick="toggle(this)">
+                                    Companies Managed <span class="acc-arrow">▼</span>
+                                </div>
+                                <div class="acc-body">
+                                    <% if (companies.length===0) { %>
+                                        <p class="no-data">No companies added yet.</p>
+                                        <% } else { %>
+                                            <% companies.forEach(c=> { %>
+                                                <div class="item-row">
+                                                    <div class="item-text"><span class="tag">
+                                                            <%= c.cname %>
+                                                        </span></div>
+                                                    <div class="item-actions">
+                                                        <a href="/coordinator/edit-company/<%= c.cid %>"
+                                                            class="btn-upd">Update</a>
+                                                    </div>
+                                                </div>
+                                                <% }) %>
+                                                    <% } %>
+                                </div>
+                            </div>
+
+                            <!-- ② STUDENTS PLACED -->
+                            <div class="acc-card">
+                                <div class="acc-header" onclick="toggle(this)">
+                                    Students Placed <span class="acc-arrow">▼</span>
+                                </div>
+                                <div class="acc-body">
+                                    <% if (placed.length===0) { %>
+                                        <p class="no-data">No students placed yet.</p>
+                                        <% } else { %>
+                                            <% placed.forEach(p=> { %>
+                                                <div class="item-row">
+                                                    <div class="item-text">
+                                                        <span class="tag">
+                                                            <%= p.sname %>
+                                                        </span>
+                                                        (<%= p.cname %> – <%= p.bname %> | <%= p.yname %>)
+                                                                    | 💰 <%= p.package %> LPA
+                                                                        | ✉ <%= p.contact %>
+                                                    </div>
+                                                    <div class="item-actions">
+                                                        <a href="/coordinator/edit-placed/<%= p.id %>"
+                                                            class="btn-upd">Update</a>
+                                                        <form method="POST"
+                                                            action="/coordinator/delete-placed/<%= p.id %>"
+                                                            onsubmit="return confirm('Delete this student record?');"
+                                                            style="margin:0;">
+                                                            <button class="btn-del" type="submit">Delete</button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                                <% }) %>
+                                                    <% } %>
+                                </div>
+                            </div>
+
+                            <!-- ③ PLACEMENT ROUND DETAILS -->
+                            <div class="acc-card">
+                                <div class="acc-header" onclick="toggle(this)">
+                                    Placement Round Details <span class="acc-arrow">▼</span>
+                                </div>
+                                <div class="acc-body">
+                                    <% if (rounds.length===0) { %>
+                                        <p class="no-data">No round details added yet.</p>
+                                        <% } else { %>
+                                            <% rounds.forEach(r=> { %>
+                                                <div class="item-row">
+                                                    <div class="item-text">
+                                                        <span class="tag">
+                                                            <%= r.cname %>
+                                                        </span> —
+                                                        <%= r.dtext.length> 180 ? r.dtext.substring(0,180) + '…' :
+                                                            r.dtext %>
+                                                    </div>
+                                                    <div class="item-actions">
+                                                        <a href="/coordinator/edit-round/<%= r.id %>"
+                                                            class="btn-upd">Update</a>
+                                                        <form method="POST"
+                                                            action="/coordinator/delete-round/<%= r.id %>"
+                                                            onsubmit="return confirm('Delete this round detail?');"
+                                                            style="margin:0;">
+                                                            <button class="btn-del" type="submit">Delete</button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                                <% }) %>
+                                                    <% } %>
+                                </div>
+                            </div>
+
+                            <!-- ④ STUDENT EXPERIENCES -->
+                            <div class="acc-card">
+                                <div class="acc-header" onclick="toggle(this)">
+                                    Student Experiences <span class="acc-arrow">▼</span>
+                                </div>
+                                <div class="acc-body">
+                                    <% if (experiences.length===0) { %>
+                                        <p class="no-data">No experiences added yet.</p>
+                                        <% } else { %>
+                                            <% experiences.forEach(e=> { %>
+                                                <div class="item-row">
+                                                    <div class="item-text">
+                                                        <span class="tag">
+                                                            <%= e.cname %>
+                                                        </span>
+                                                        <%= e.dtext.length> 180 ? e.dtext.substring(0,180) + '…' :
+                                                            e.dtext %>
+                                                    </div>
+                                                    <div class="item-actions">
+                                                        <a href="/coordinator/edit-experience/<%= e.id %>"
+                                                            class="btn-upd">Update</a>
+                                                        <form method="POST"
+                                                            action="/coordinator/delete-experience/<%= e.id %>"
+                                                            onsubmit="return confirm('Delete this experience?');"
+                                                            style="margin:0;">
+                                                            <button class="btn-del" type="submit">Delete</button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                                <% }) %>
+                                                    <% } %>
+                                </div>
+                            </div>
+
+                            <!-- ⑤ RESOURCES -->
+                            <div class="acc-card">
+                                <div class="acc-header" onclick="toggle(this)">
+                                    Resources <span class="acc-arrow">▼</span>
+                                </div>
+                                <div class="acc-body">
+                                    <% if (resources.length===0) { %>
+                                        <p class="no-data">No resources added yet.</p>
+                                        <% } else { %>
+                                            <% resources.forEach(r=> { %>
+                                                <div class="item-row">
+                                                    <div class="item-text">
+                                                        <span class="pill-branch">
+                                                            <%= r.bname %>
+                                                        </span>
+                                                        | <a href="<%= r.rlink %>" target="_blank"
+                                                            style="color:#2563eb;font-size:.8rem;">Open Link</a>
+                                                        | <%= r.Details %>
+                                                    </div>
+                                                    <div class="item-actions">
+                                                        <a href="/coordinator/edit-resource/<%= r.id %>"
+                                                            class="btn-upd">Update</a>
+                                                        <form method="POST"
+                                                            action="/coordinator/delete-resource/<%= r.id %>"
+                                                            onsubmit="return confirm('Delete this resource?');"
+                                                            style="margin:0;">
+                                                            <button class="btn-del" type="submit">Delete</button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                                <% }) %>
+                                                    <% } %>
+                                </div>
+                            </div>
+
+                            <!-- ⑥ SESSIONS -->
+                            <div class="acc-card">
+                                <div class="acc-header" onclick="toggle(this)">
+                                    Sessions <span class="acc-arrow">▼</span>
+                                </div>
+                                <div class="acc-body">
+                                    <% if (sessions.length===0) { %>
+                                        <p class="no-data">No sessions added yet.</p>
+                                        <% } else { %>
+                                            <% sessions.forEach(s=> { %>
+                                                <div class="item-row">
+                                                    <div class="item-text">
+                                                        <span class="pill-branch">
+                                                            <%= s.bname %>
+                                                        </span>
+                                                        | <% if (s.link) { %>
+                                                            <a href="<%= s.link %>" target="_blank"
+                                                                style="color:#2563eb;font-size:.8rem;">Join</a>
+                                                            <% } else { %>
+                                                                <span style="color:#bbb;font-size:.8rem;">No link</span>
+                                                                <% } %>
+                                                                    | <%= s.detail %>
+                                                                        | ⏰ <%= s.time %>
+                                                    </div>
+                                                    <div class="item-actions">
+                                                        <a href="/coordinator/edit-session/<%= s.id %>"
+                                                            class="btn-upd">Update</a>
+                                                        <form method="POST"
+                                                            action="/coordinator/delete-session/<%= s.id %>"
+                                                            onsubmit="return confirm('Delete this session?');"
+                                                            style="margin:0;">
+                                                            <button class="btn-del" type="submit">Delete</button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                                <% }) %>
+                                                    <% } %>
+                                </div>
+                            </div>
+
+        </div><!-- /.profile-wrapper -->
+
+        <%- include('../partials/_footer') %>
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+            <script>
+                function toggle(header) {
+                    header.classList.toggle('open');
+                    const body = header.nextElementSibling;
+                    body.classList.toggle('open');
+                }
+            </script>
+</body>
+
+</html>

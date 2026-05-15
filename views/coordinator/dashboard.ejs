@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard – Placement Mentorship Portal</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+
+    <%- include('../partials/_navbar_coord', { activePage: 'dashboard' , coordName: coordName }) %>
+
+        <main class="section-wrapper">
+            <div class="container">
+
+                <!-- Hero -->
+                <div class="dash-hero">
+                    <h2>Welcome, Coordinator 👋</h2>
+                    <p>Monitor your branch's placement performance in real-time</p>
+                </div>
+
+                <!-- =====================
+         Branch Placement Register
+    ===================== -->
+                <div class="dash-section">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+                        <h5>📁 Branch Placement Register</h5>
+                        <form method="GET" action="/coordinator/dashboard" class="d-flex gap-2">
+                            <select name="yid" class="form-select form-select-sm" style="min-width:200px;"
+                                onchange="this.form.submit()">
+                                <option value="">-- Select Academic Year --</option>
+                                <% years.forEach(y=> { %>
+                                    <option value="<%= y.yid %>" <%=selectedYid==y.yid ? 'selected' : '' %>>
+                                        Academic Year <%= y.year %>
+                                    </option>
+                                    <% }) %>
+                            </select>
+                        </form>
+                    </div>
+
+                    <% if (!selectedYid) { %>
+                        <p class="text-center text-muted py-3" style="font-size:0.9rem;">Please select a year to view
+                            the official placement ledger.</p>
+                        <% } else if (placed.length===0) { %>
+                            <p class="no-data">No students placed for the selected year.</p>
+                            <% } else { %>
+                                <div class="table-responsive">
+                                    <table class="reg-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Student Name</th>
+                                                <th>Email/Contact</th>
+                                                <th>Company</th>
+                                                <th>Package (LPA)</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <% placed.forEach(p=> { %>
+                                                <tr>
+                                                    <td><strong>
+                                                            <%= p.sname %>
+                                                        </strong></td>
+                                                    <td style="color:#666;font-size:0.82rem;">
+                                                        <%= p.contact || '—' %>
+                                                    </td>
+                                                    <td>
+                                                        <% if (p.cname) { %>
+                                                            <span class="company-badge">
+                                                                <%= p.cname %>
+                                                            </span>
+                                                            <% } else { %>—<% } %>
+                                                    </td>
+                                                    <td style="font-weight:700;color:#1d6ff5;">
+                                                        <%= p.package ? Number(p.package).toFixed(2) : '—' %>
+                                                    </td>
+                                                </tr>
+                                                <% }) %>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <% } %>
+                </div>
+
+                <!-- =====================
+         Modular Report Builder
+    ===================== -->
+                <div class="dash-section">
+                    <h5>📊 Modular Report Builder</h5>
+                    <form id="reportForm" class="report-builder" onsubmit="generateReport(event)">
+                        <div class="row g-3 align-items-start">
+                            <!-- 1. Select Year -->
+                            <div class="col-md-4">
+                                <label>1. Select Year</label>
+                                <select name="report_yid" id="report_yid" class="form-select">
+                                    <% years.forEach(y=> { %>
+                                        <option value="<%= y.yid %>">
+                                            <%= y.year %>
+                                        </option>
+                                        <% }) %>
+                                </select>
+                            </div>
+
+                            <!-- 2. Experience Lookback -->
+                            <div class="col-md-4">
+                                <label>2. Experience Lookback</label>
+                                <select name="lookback" class="form-select">
+                                    <option value="1">Last 1 Year (Current)</option>
+                                    <option value="2">Last 2 Years</option>
+                                    <option value="3">Last 3 Years</option>
+                                    <option value="all">All Time</option>
+                                </select>
+                            </div>
+
+                            <!-- 3. Include Sections -->
+                            <div class="col-md-4">
+                                <label>3. Include Sections</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="chk_placed" name="sec_placed"
+                                        checked>
+                                    <label class="form-check-label" for="chk_placed">Placed Student Details</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="chk_resources"
+                                        name="sec_resources" checked>
+                                    <label class="form-check-label" for="chk_resources">Branch Resources</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="chk_procedures"
+                                        name="sec_procedures" checked>
+                                    <label class="form-check-label" for="chk_procedures">Placement Procedures</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center mt-3">
+                            <button type="submit" class="btn-generate">Generate PDF Report</button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </main>
+
+        <%- include('../partials/_footer') %>
+
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+            <script>
+                function generateReport(e) {
+                    e.preventDefault();
+                    const yid = document.getElementById('report_yid').value;
+                    const sec_placed = document.getElementById('chk_placed').checked;
+                    const sec_resources = document.getElementById('chk_resources').checked;
+                    const sec_procedures = document.getElementById('chk_procedures').checked;
+                    const params = new URLSearchParams({ yid, sec_placed, sec_resources, sec_procedures });
+                    window.open('/coordinator/report?' + params.toString(), '_blank');
+                }
+            </script>
+</body>
+
+</html>

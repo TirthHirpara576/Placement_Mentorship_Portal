@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Profile – Placement Mentorship Portal</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .dashboard-container {
+            background: #e0f2fe;
+            background: linear-gradient(180deg, #e0f2fe 0%, #f8fafc 100%);
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.25rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            margin-bottom: 1.5rem;
+            border: none;
+            height: 100%;
+        }
+
+        .chart-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 1rem;
+        }
+
+        .chart-filter {
+            font-size: 0.8rem;
+            color: #475569;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .chart-filter select {
+            border-radius: 4px;
+            border: 1px solid #cbd5e1;
+            padding: 0.1rem 0.4rem;
+            font-size: 0.8rem;
+        }
+
+        canvas {
+            max-height: 250px;
+            width: 100%;
+        }
+
+        .activity-feed-card,
+        .report-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            padding: 1.5rem;
+            border: none;
+        }
+
+        .activity-feed-card {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .feed-item {
+            display: flex;
+            gap: 1rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .feed-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #15803d;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .feed-content {
+            font-size: 0.85rem;
+            color: #334155;
+        }
+
+        .feed-meta {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-top: 0.25rem;
+        }
+
+        .report-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .report-option {
+            background: #f8fafc;
+            padding: 0.6rem 1rem;
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.85rem;
+            color: #334155;
+        }
+
+        .report-option input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #2f3b9c;
+        }
+
+        .btn-generate {
+            background: #2f3b9c;
+            color: white;
+            border-radius: 6px;
+            padding: 0.4rem 1.2rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+            border: none;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <%- include('../partials/_navbar_admin', { activePage: 'dashboard' , adminName: adminName }) %>
+
+        <div class="dashboard-container">
+            <div class="container" style="max-width: 1200px;">
+                <div class="d-flex align-items-center justify-content-center mb-4 gap-2">
+                    <span style="font-size: 1.8rem;">📊</span>
+                    <h2 style="font-weight: 600; color: #1e293b; margin:0;">Admin Profile</h2>
+                </div>
+
+                <!-- First Row of Charts -->
+                <div class="row g-4 mb-4">
+                    <div class="col-lg-4 col-md-6">
+                        <div class="chart-card">
+                            <div class="chart-title">Total Placements vs Year</div>
+                            <canvas id="chart1"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6">
+                        <div class="chart-card">
+                            <div class="chart-title">Total Placements vs Branch</div>
+                            <canvas id="chart2"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6">
+                        <div class="chart-card">
+                            <div class="chart-title">Placements in <span id="lblChart3Year">...</span> vs Branch</div>
+                            <div class="chart-filter">
+                                Year: <select id="selChart3Year" onchange="updateChart3()"></select>
+                            </div>
+                            <canvas id="chart3"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Second Row of Charts -->
+                <div class="row g-4 mb-4">
+                    <div class="col-lg-4 col-md-6">
+                        <div class="chart-card">
+                            <div class="chart-title">Placements by Year for Selected Branch</div>
+                            <div class="chart-filter">
+                                Branch: <select id="selChart4Branch" onchange="updateChart4()"></select>
+                            </div>
+                            <canvas id="chart4"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6">
+                        <div class="chart-card">
+                            <div class="chart-title">Average vs Highest Package per Branch</div>
+                            <div class="chart-filter">
+                                Year:
+                                <select id="selChart5Year" onchange="updateChart5()">
+                                    <option value="All Years">All Years</option>
+                                </select>
+                            </div>
+                            <canvas id="chart5"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6">
+                        <div class="chart-card">
+                            <div class="chart-title">Placements vs Companies</div>
+                            <div class="chart-filter">
+                                Year:
+                                <select id="selChart6Year" onchange="updateChart6()">
+                                    <option value="All Years">All Years</option>
+                                </select>
+                            </div>
+                            <canvas id="chart6"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Third Row: Activity Feed and Annual Report -->
+                <div class="row g-4 pb-5">
+                    <div class="col-lg-6">
+                        <div class="activity-feed-card" style="height: 100%;">
+                            <div class="d-flex align-items-center gap-2 border-bottom pb-3 mb-3">
+                                <span style="color:#0ea5e9; font-size:1.2rem;">🛡️</span>
+                                <h5 style="margin:0; font-weight:600; color:#1e293b;">Recent Activity Feed</h5>
+                            </div>
+
+                            <div class="d-flex gap-2 mb-3 align-items-center">
+                                <input type="date" id="feedStartDate" class="form-control form-control-sm"
+                                    style="max-width: 140px; font-size:0.8rem;">
+                                <span class="text-muted" style="font-size:0.8rem;">to</span>
+                                <input type="date" id="feedEndDate" class="form-control form-control-sm"
+                                    style="max-width: 140px; font-size:0.8rem;">
+                                <button class="btn btn-sm btn-primary"
+                                    style="font-size:0.8rem; background:#2f3b9c; border:none;"
+                                    onclick="filterFeed()">Filter</button>
+                                <button class="btn btn-sm btn-light border" style="font-size:0.8rem;"
+                                    onclick="resetFeed()">Reset</button>
+                            </div>
+
+                            <div id="feedContainer">
+                                <% if (audits && audits.length> 0) { %>
+                                    <% audits.forEach(a=> {
+                                        const actionLetter = (a.action || 'A')[0].toUpperCase();
+                                        const bgColor = actionLetter === 'A' ? '#15803d' : (actionLetter === 'U' ?
+                                        '#f59e0b' : '#b91c1c');
+                                        %>
+                                        <div class="feed-item" data-date="<%= a.time.toISOString() %>">
+                                            <div class="feed-icon" style="background: <%= bgColor %>">
+                                                <%= actionLetter %>
+                                            </div>
+                                            <div>
+                                                <div class="feed-content">
+                                                    <strong>
+                                                        <%= a.action %>:
+                                                    </strong>
+                                                    <%= a.detail %>
+                                                </div>
+                                                <div class="feed-meta">
+                                                    Done By: <%= a.doer %>
+                                                        <br>
+                                                        <%= a.time.toLocaleString('en-US', { month: 'short' ,
+                                                            day: 'numeric' , hour: '2-digit' , minute: '2-digit' }) %>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <% }) %>
+                                            <% } else { %>
+                                                <div class="text-muted" style="font-size: 0.85rem;">No recent activity
+                                                    found.</div>
+                                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6">
+                        <div class="report-card" style="height: 100%;">
+                            <div class="report-header border-bottom pb-3 mb-3">
+                                <span style="font-size:1.2rem;">📑</span>
+                                <h5 style="margin:0;">Dynamic Annual Report</h5>
+                            </div>
+
+                            <form action="#" method="GET">
+                                <div class="report-option">
+                                    <input type="checkbox" id="rep1" checked>
+                                    <label for="rep1" style="flex:1; cursor:pointer;">Executive Summary (KPIs)</label>
+                                </div>
+                                <div class="report-option">
+                                    <input type="checkbox" id="rep2" checked>
+                                    <label for="rep2" style="flex:1; cursor:pointer;">Year-over-Year Growth</label>
+                                </div>
+                                <div class="report-option">
+                                    <input type="checkbox" id="rep3">
+                                    <label for="rep3" style="flex:1; cursor:pointer;">Branch Efficiency Table</label>
+                                </div>
+                                <div class="report-option">
+                                    <input type="checkbox" id="rep4">
+                                    <label for="rep4" style="flex:1; cursor:pointer;">Corporate Insights</label>
+                                </div>
+                                <div class="report-option">
+                                    <input type="checkbox" id="rep5" checked>
+                                    <label for="rep5" style="flex:1; cursor:pointer;">Detailed Student Records</label>
+                                </div>
+
+                                <div class="d-flex gap-2 align-items-center mt-3">
+                                    <select class="form-select form-select-sm" style="width: 100px; font-size:0.85rem;"
+                                        id="reportYearSelect"></select>
+                                    <button type="button" class="btn-generate"
+                                        onclick="alert('Report generated and downloaded successfully as PDF.')">Generate
+                                        PDF</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <%- include('../partials/_footer') %>
+
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+            <script id="placementsData" type="application/json"><%- placements || '[]' %></script>
+            <script id="intakesData" type="application/json"><%- intakes || '[]' %></script>
+            <script>
+                // Parse data from server payload
+                const rawPlacements = JSON.parse(document.getElementById('placementsData').textContent);
+                const rawIntakes = JSON.parse(document.getElementById('intakesData').textContent);
+
+                // Ensure we have uniform branches and years mapping from intakes
+                const allYears = [...new Set(rawIntakes.map(i => i.year))].sort((a, b) => a - b);
+                const allBranches = [...new Set(rawIntakes.map(i => i.bname))].sort();
+
+                // Populate dropdowns globally
+                ['selChart3Year', 'reportYearSelect'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        allYears.forEach(y => {
+                            const opt = document.createElement('option');
+                            opt.value = opt.text = y;
+                            el.appendChild(opt);
+                        });
+                        if (allYears.length > 0) el.value = allYears[allYears.length - 1]; // Select newest
+                    }
+                });
+
+                ['selChart5Year', 'selChart6Year'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        allYears.forEach(y => {
+                            const opt = document.createElement('option');
+                            opt.value = opt.text = y;
+                            el.appendChild(opt);
+                        });
+                    }
+                });
+
+                const selChart4Branch = document.getElementById('selChart4Branch');
+                if (selChart4Branch) {
+                    allBranches.forEach(b => {
+                        const opt = document.createElement('option');
+                        opt.value = opt.text = b;
+                        selChart4Branch.appendChild(opt);
+                    });
+                }
+
+                // Shared Configuration Defaults
+                Chart.defaults.font.family = "'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
+                Chart.defaults.color = '#64748b';
+                Chart.defaults.scale.grid.color = '#f1f5f9';
+
+                const barColor = '#60a5fa'; // Blue
+                const lineColor = '#9f1239'; // Red line
+                const hoverColor = '#3b82f6';
+
+                let c1, c2, c3, c4, c5, c6;
+
+                function getIntake(year, branch) {
+                    if (year && branch) {
+                        const row = rawIntakes.find(i => i.year == year && i.bname === branch);
+                        return row ? parseFloat(row.count) : 0;
+                    }
+                    if (year) {
+                        return rawIntakes.filter(i => i.year == year).reduce((sum, i) => sum + parseFloat(i.count), 0);
+                    }
+                    if (branch) {
+                        return rawIntakes.filter(i => i.bname === branch).reduce((sum, i) => sum + parseFloat(i.count), 0);
+                    }
+                    return 0;
+                }
+
+                // --- Chart 1: Total Placements vs Year ---
+                function drawChart1() {
+                    const labels = allYears;
+                    const placementsData = labels.map(y => rawPlacements.filter(p => p.year == y).length);
+                    const percentageData = labels.map((y, idx) => {
+                        const totalIn = getIntake(y, null);
+                        return totalIn > 0 ? ((placementsData[idx] / totalIn) * 100).toFixed(1) : 0;
+                    });
+
+                    c1 = new Chart(document.getElementById('chart1'), {
+                        type: 'bar',
+                        data: {
+                            labels,
+                            datasets: [
+                                { type: 'line', label: 'Placement %', data: percentageData, borderColor: lineColor, backgroundColor: lineColor, tension: 0.1, yAxisID: 'y1' },
+                                { type: 'bar', label: 'Placements', data: placementsData, backgroundColor: barColor, yAxisID: 'y' }
+                            ]
+                        },
+                        options: {
+                            responsive: true, maintainAspectRatio: false,
+                            scales: {
+                                y: { type: 'linear', position: 'left', title: { display: true, text: 'Students Placed' } },
+                                y1: { type: 'linear', position: 'right', min: 0, max: 100, title: { display: true, text: 'Percentage (%)' }, grid: { drawOnChartArea: false } }
+                            }
+                        }
+                    });
+                }
+                drawChart1();
+
+                // --- Chart 2: Total Placements vs Branch ---
+                function drawChart2() {
+                    const labels = allBranches;
+                    const placementsData = labels.map(b => rawPlacements.filter(p => p.bname === b).length);
+                    const percentageData = labels.map((b, idx) => {
+                        const totalIn = getIntake(null, b);
+                        return totalIn > 0 ? ((placementsData[idx] / totalIn) * 100).toFixed(1) : 0;
+                    });
+
+                    c2 = new Chart(document.getElementById('chart2'), {
+                        type: 'bar',
+                        data: {
+                            labels,
+                            datasets: [
+                                { type: 'line', label: 'Placement %', data: percentageData, borderColor: lineColor, backgroundColor: lineColor, tension: 0.1, yAxisID: 'y1' },
+                                { type: 'bar', label: 'Placements', data: placementsData, backgroundColor: barColor, yAxisID: 'y' }
+                            ]
+                        },
+                        options: {
+                            responsive: true, maintainAspectRatio: false,
+                            scales: {
+                                y: { type: 'linear', position: 'left', title: { display: true, text: 'Students Placed' } },
+                                y1: { type: 'linear', position: 'right', min: 0, max: 100, title: { display: true, text: 'Percentage (%)' }, grid: { drawOnChartArea: false } }
+                            }
+                        }
+                    });
+                }
+                drawChart2();
+
+                // --- Chart 3: Placements in Custom Year vs Branch ---
+                function updateChart3() {
+                    const selectedYear = document.getElementById('selChart3Year').value;
+                    document.getElementById('lblChart3Year').innerText = selectedYear;
+                    const labels = allBranches;
+                    const placementsData = labels.map(b => rawPlacements.filter(p => p.bname === b && p.year == selectedYear).length);
+                    const percentageData = labels.map((b, idx) => {
+                        const totalIn = getIntake(selectedYear, b);
+                        return totalIn > 0 ? ((placementsData[idx] / totalIn) * 100).toFixed(1) : 0;
+                    });
+
+                    if (c3) c3.destroy();
+                    c3 = new Chart(document.getElementById('chart3'), {
+                        type: 'bar',
+                        data: {
+                            labels,
+                            datasets: [
+                                { type: 'line', label: 'Placement %', data: percentageData, borderColor: lineColor, backgroundColor: lineColor, tension: 0.1, yAxisID: 'y1' },
+                                { type: 'bar', label: `Placements in ${selectedYear}`, data: placementsData, backgroundColor: barColor, yAxisID: 'y' }
+                            ]
+                        },
+                        options: {
+                            responsive: true, maintainAspectRatio: false,
+                            scales: {
+                                y: { type: 'linear', position: 'left', title: { display: true, text: 'Students Placed' } },
+                                y1: { type: 'linear', position: 'right', min: 0, max: 100, title: { display: true, text: 'Percentage (%)' }, grid: { drawOnChartArea: false } }
+                            }
+                        }
+                    });
+                }
+                updateChart3();
+
+                // --- Chart 4: Placements by Year for Selected Branch ---
+                function updateChart4() {
+                    const selectedBranch = document.getElementById('selChart4Branch').value;
+                    const labels = allYears;
+                    const placementsData = labels.map(y => rawPlacements.filter(p => p.year == y && p.bname === selectedBranch).length);
+                    const percentageData = labels.map((y, idx) => {
+                        const totalIn = getIntake(y, selectedBranch);
+                        return totalIn > 0 ? ((placementsData[idx] / totalIn) * 100).toFixed(1) : 0;
+                    });
+
+                    if (c4) c4.destroy();
+                    c4 = new Chart(document.getElementById('chart4'), {
+                        type: 'bar',
+                        data: {
+                            labels,
+                            datasets: [
+                                { type: 'line', label: 'Placement %', data: percentageData, borderColor: lineColor, backgroundColor: lineColor, tension: 0.1, yAxisID: 'y1' },
+                                { type: 'bar', label: `Placements`, data: placementsData, backgroundColor: barColor, yAxisID: 'y' }
+                            ]
+                        },
+                        options: {
+                            responsive: true, maintainAspectRatio: false,
+                            scales: {
+                                y: { type: 'linear', position: 'left', title: { display: true, text: 'Students Placed' } },
+                                y1: { type: 'linear', position: 'right', min: 0, max: 100, title: { display: true, text: 'Percentage (%)' }, grid: { drawOnChartArea: false } }
+                            }
+                        }
+                    });
+                }
+                updateChart4();
+
+                // --- Chart 5: Avg vs Highest per Branch ---
+                function updateChart5() {
+                    const year = document.getElementById('selChart5Year').value;
+                    const labels = allBranches;
+
+                    let filtered = rawPlacements;
+                    if (year !== 'All Years') {
+                        filtered = filtered.filter(p => p.year == year);
+                    }
+
+                    const avgData = labels.map(b => {
+                        const bArr = filtered.filter(p => p.bname === b && p.package);
+                        if (bArr.length === 0) return 0;
+                        const total = bArr.reduce((sum, p) => sum + parseFloat(p.package || 0), 0);
+                        return (total / bArr.length).toFixed(2);
+                    });
+
+                    const maxData = labels.map(b => {
+                        const bArr = filtered.filter(p => p.bname === b && p.package);
+                        if (bArr.length === 0) return 0;
+                        return Math.max(...bArr.map(p => parseFloat(p.package || 0))).toFixed(2);
+                    });
+
+                    if (c5) c5.destroy();
+                    c5 = new Chart(document.getElementById('chart5'), {
+                        type: 'bar',
+                        data: {
+                            labels,
+                            datasets: [
+                                { label: 'Average Package (LPA)', data: avgData, backgroundColor: barColor },
+                                { label: 'Highest Package (LPA)', data: maxData, backgroundColor: '#e16075' }
+                            ]
+                        },
+                        options: {
+                            responsive: true, maintainAspectRatio: false,
+                            scales: { y: { title: { display: true, text: 'LPA' } } }
+                        }
+                    });
+                }
+                updateChart5();
+
+                // --- Chart 6: Placements vs Companies (Horizontal Bar) ---
+                function updateChart6() {
+                    const year = document.getElementById('selChart6Year').value;
+                    let filtered = rawPlacements;
+                    if (year !== 'All Years') {
+                        filtered = filtered.filter(p => p.year == year);
+                    }
+
+                    // Group by company
+                    const counts = {};
+                    filtered.forEach(p => {
+                        const cname = p.cname || 'Unknown';
+                        counts[cname] = (counts[cname] || 0) + 1;
+                    });
+
+                    // Sort to grab top 10
+                    const sortedCounts = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 10);
+                    const labels = sortedCounts.map(x => x[0]);
+                    const data = sortedCounts.map(x => x[1]);
+
+                    if (c6) c6.destroy();
+                    c6 = new Chart(document.getElementById('chart6'), {
+                        type: 'bar',
+                        data: {
+                            labels,
+                            datasets: [
+                                { label: 'Placements', data, backgroundColor: '#3b82f6', barPercentage: 0.8 }
+                            ]
+                        },
+                        options: {
+                            indexAxis: 'y',
+                            responsive: true, maintainAspectRatio: false,
+                            plugins: { legend: { display: false } }, // Match photo, usually no active legend or it's hidden due to 1 data point
+                            scales: { x: { ticks: { precision: 0 } } }
+                        }
+                    });
+                }
+                updateChart6();
+
+                // Feed logic
+                function filterFeed() {
+                    const startStr = document.getElementById('feedStartDate').value;
+                    const endStr = document.getElementById('feedEndDate').value;
+                    const items = document.querySelectorAll('.feed-item');
+
+                    const start = startStr ? new Date(startStr) : null;
+                    const end = endStr ? new Date(endStr) : null;
+                    if (end) end.setHours(23, 59, 59, 999);
+
+                    items.forEach(item => {
+                        const d = new Date(item.dataset.date);
+                        let show = true;
+                        if (start && d < start) show = false;
+                        if (end && d > end) show = false;
+                        item.style.display = show ? 'flex' : 'none';
+                    });
+                }
+
+                function resetFeed() {
+                    document.getElementById('feedStartDate').value = '';
+                    document.getElementById('feedEndDate').value = '';
+                    document.querySelectorAll('.feed-item').forEach(i => i.style.display = 'flex');
+                }
+            </script>
+</body>
+
+</html>

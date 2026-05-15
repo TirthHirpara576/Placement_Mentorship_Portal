@@ -1,0 +1,67 @@
+<!-- Coordinator Navbar -->
+<nav class="navbar navbar-expand-lg">
+    <div class="container-fluid px-4">
+        <a class="navbar-brand" href="/">Placement Mentorship Portal</a>
+        <div class="d-flex align-items-center gap-2 ms-auto">
+            <!-- Normal nav links -->
+            <div class="collapse navbar-collapse" id="navMenuCoord">
+                <ul class="navbar-nav align-items-center gap-1 me-2">
+                    <li class="nav-item"><a class="nav-link <%= activePage==='home' ? 'nav-active' : '' %>"
+                            href="/">Home</a></li>
+                    <li class="nav-item"><a class="nav-link <%= activePage==='resources' ? 'nav-active' : '' %>"
+                            href="/Home/Resources">Resources</a></li>
+                    <li class="nav-item"><a class="nav-link <%= activePage==='coordinators' ? 'nav-active' : '' %>"
+                            href="/Home/Coordinators">Coordinators</a></li>
+                    <li class="nav-item"><a class="nav-link <%= activePage==='statistics' ? 'nav-active' : '' %>"
+                            href="/Home/Statistics">Statistics</a></li>
+                </ul>
+            </div>
+            <!-- Dashboard button -->
+            <a href="/coordinator/dashboard"
+                class="btn-dash <%= activePage==='dashboard' ? 'btn-dash-active' : '' %>">Dashboard</a>
+            <!-- Navigation/Hamburger panel button -->
+            <button class="btn-panel-toggle" id="panelToggleBtn" onclick="togglePanel()" title="Coordinator Panel">
+                <span>&#9776;</span>
+            </button>
+            <!-- Logout -->
+            <a href="/logout" class="btn-logout">Logout</a>
+        </div>
+    </div>
+</nav>
+
+<!-- Welcome strip -->
+<div class="welcome-strip">
+    Welcome, <strong>
+        <%= (coordName || 'Coordinator' ).replace(/^Prof\.\s*/i, '' ) %>!
+    </strong>
+</div>
+
+<!-- Coordinator Panel Sidebar -->
+<div id="coordPanel" class="coord-panel">
+    <div class="coord-panel-header">
+        <span>&#128196; Coordinator Panel</span>
+        <button onclick="togglePanel()" class="panel-close-btn">&times;</button>
+    </div>
+    <ul class="coord-panel-links">
+        <li><a href="/coordinator/add-company">Add Company</a></li>
+        <li><a href="/coordinator/add-placement-procedure">Add Placement Procedure</a></li>
+        <li><a href="/coordinator/add-students-placed">Add Students Placed</a></li>
+        <li><a href="/coordinator/add-student-experiences">Add Student Experiences</a></li>
+        <li><a href="/coordinator/add-resources">Add Resources</a></li>
+        <li><a href="/coordinator/add-session">Add Session</a></li>
+        <li><a href="/coordinator/view-sessions">View Sessions</a></li>
+        <li><a href="/coordinator/send-mail">Send Mail</a></li>
+        <li><a href="/coordinator/profile">Profile</a></li>
+        <li><a href="/coordinator/reset-password">Reset Password</a></li>
+    </ul>
+</div>
+<div id="panelOverlay" class="panel-overlay" onclick="togglePanel()"></div>
+
+<script>
+    function togglePanel() {
+        const panel = document.getElementById('coordPanel');
+        const overlay = document.getElementById('panelOverlay');
+        panel.classList.toggle('open');
+        overlay.classList.toggle('show');
+    }
+</script>

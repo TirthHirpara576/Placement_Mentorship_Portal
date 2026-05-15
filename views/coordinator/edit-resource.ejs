@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Resource – TPC Portal</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <%- include('../partials/_navbar_coord', { activePage: 'dashboard' , coordName: coordName }) %>
+        <main class="section-wrapper">
+            <div class="container">
+                <div class="coord-form-card">
+                    <h2 class="coord-form-title">✏️ Edit Resource</h2>
+
+                    <% if (success) { %>
+                        <div class="alert-success-msg">
+                            <%= success %>
+                        </div>
+                        <% } %>
+                            <% if (error) { %>
+                                <div class="alert-error-msg">
+                                    <%= error %>
+                                </div>
+                                <% } %>
+
+                                    <form method="POST" action="/coordinator/edit-resource/<%= record.id %>" novalidate>
+
+                                        <div class="form-group-coord">
+                                            <label>Branch <span class="req">*</span></label>
+                                            <select class="coord-input" id="bid" name="bid">
+                                                <option value="">-- Select Branch --</option>
+                                                <% branches.forEach(b=> { %>
+                                                    <option value="<%= b.bid %>" <%=record.bid==b.bid ? 'selected' : ''
+                                                        %>><%= b.bname %>
+                                                    </option>
+                                                    <% }) %>
+                                            </select>
+                                            <div class="field-error" id="err_bid"></div>
+                                        </div>
+
+                                        <div class="form-group-coord">
+                                            <label>Resource Link <span class="req">*</span></label>
+                                            <input type="text" class="coord-input" id="rlink" name="rlink"
+                                                value="<%= record.rlink %>" placeholder="https://...">
+                                            <div class="field-error" id="err_rlink"></div>
+                                        </div>
+
+                                        <div class="form-group-coord">
+                                            <label>Description <span class="req">*</span></label>
+                                            <input type="text" class="coord-input" id="Details" name="Details"
+                                                value="<%= record.Details %>" placeholder="Short description">
+                                            <div class="field-error" id="err_details"></div>
+                                        </div>
+
+                                        <button type="submit" class="coord-submit-btn"
+                                            onclick="return validateResource()">Save Changes</button>
+                                        <a href="/coordinator/profile" class="coord-back-link">← Back to Profile</a>
+                                    </form>
+                </div>
+            </div>
+        </main>
+        <%- include('../partials/_footer') %>
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+            <script>
+                function validateResource() {
+                    let valid = true;
+                    document.querySelectorAll('.field-error').forEach(e => e.textContent = '');
+                    document.querySelectorAll('.input-error').forEach(e => e.classList.remove('input-error'));
+                    const bid = document.getElementById('bid').value;
+                    if (!bid) {
+                        document.getElementById('err_bid').textContent = 'Please select a branch.';
+                        document.getElementById('bid').classList.add('input-error'); valid = false;
+                    }
+                    const rlink = document.getElementById('rlink').value.trim();
+                    if (!rlink || !rlink.startsWith('http')) {
+                        document.getElementById('err_rlink').textContent = 'Enter a valid link starting with http:// or https://';
+                        document.getElementById('rlink').classList.add('input-error'); valid = false;
+                    }
+                    const details = document.getElementById('Details').value.trim();
+                    if (!details) {
+                        document.getElementById('err_details').textContent = 'Description is required.';
+                        document.getElementById('Details').classList.add('input-error'); valid = false;
+                    }
+                    return valid;
+                }
+            </script>
+</body>
+
+</html>

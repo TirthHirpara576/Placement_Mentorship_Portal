@@ -1,0 +1,64 @@
+<!-- Admin Navbar -->
+<nav class="navbar navbar-expand-lg">
+    <div class="container-fluid px-4">
+        <a class="navbar-brand" href="/">Placement Mentorship Portal</a>
+        <div class="d-flex align-items-center gap-2 ms-auto">
+            <!-- Normal nav links -->
+            <div class="collapse navbar-collapse" id="navMenuAdmin">
+                <ul class="navbar-nav align-items-center gap-1 me-2">
+                    <li class="nav-item"><a class="nav-link <%= activePage==='home' ? 'nav-active' : '' %>"
+                            href="/">Home</a></li>
+                    <li class="nav-item"><a class="nav-link <%= activePage==='resources' ? 'nav-active' : '' %>"
+                            href="/Home/Resources">Resources</a></li>
+                    <li class="nav-item"><a class="nav-link <%= activePage==='coordinators' ? 'nav-active' : '' %>"
+                            href="/Home/Coordinators">Coordinators</a></li>
+                    <li class="nav-item"><a class="nav-link <%= activePage==='statistics' ? 'nav-active' : '' %>"
+                            href="/Home/Statistics">Statistics</a></li>
+                </ul>
+            </div>
+            <!-- Dashboard button -->
+            <a href="/admin/dashboard"
+                class="btn-dash <%= activePage==='dashboard' ? 'btn-dash-active' : '' %>">Dashboard</a>
+            <!-- Navigation/Hamburger panel button -->
+            <button class="btn-panel-toggle" id="adminPanelToggleBtn" onclick="toggleAdminPanel()" title="Admin Panel">
+                <span>&#9776;</span>
+            </button>
+            <!-- Logout -->
+            <a href="/admin/logout" class="btn-logout">Logout</a>
+        </div>
+    </div>
+</nav>
+
+<!-- Welcome strip -->
+<div class="welcome-strip">
+    Welcome, <strong>Prof. Mehul Patel</strong>
+</div>
+
+<!-- Admin Panel Sidebar -->
+<div id="adminPanel" class="coord-panel">
+    <div class="coord-panel-header">
+        <span>&#128196; Admin Panel</span>
+        <button onclick="toggleAdminPanel()" class="panel-close-btn">&times;</button>
+    </div>
+    <ul class="coord-panel-links">
+        <li><a href="/admin/add-year">Add Year</a></li>
+        <li><a href="/admin/add-branch">Add Branch</a></li>
+        <li><a href="/admin/add-student-count">Add Students Count</a></li>
+        <li><a href="/admin/deactivate-coordinators">Deactivate Coordinators</a></li>
+        <li><a href="/admin/add-coordinator">Add New Coordinator</a></li>
+        <li><a href="/admin/add-students">Add Students</a></li>
+        <li><a href="/admin/remove-students">Remove Students</a></li>
+        <li><a href="/admin/send-email">Send Email</a></li>
+        <li><a href="/admin/profile">Profile</a></li>
+    </ul>
+</div>
+<div id="adminPanelOverlay" class="panel-overlay" onclick="toggleAdminPanel()"></div>
+
+<script>
+    function toggleAdminPanel() {
+        const panel = document.getElementById('adminPanel');
+        const overlay = document.getElementById('adminPanelOverlay');
+        panel.classList.toggle('open');
+        overlay.classList.toggle('show');
+    }
+</script>

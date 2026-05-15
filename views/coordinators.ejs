@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coordinators – Placement Mentorship Portal</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+
+    <% if (typeof isAdmin !=='undefined' && isAdmin) { %>
+        <%- include('partials/_navbar_admin', { activePage: activePage, adminName: adminName }) %>
+            <% } else if (typeof isCoordinator !=='undefined' && isCoordinator) { %>
+                <%- include('partials/_navbar_coord', { activePage: activePage, coordName: coordName }) %>
+                    <% } else { %>
+                        <%- include('partials/_navbar') %>
+                            <% } %>
+
+                                <main class="section-wrapper">
+                                    <div class="container">
+                                        <h1 class="page-title">Coordinators</h1>
+
+                                        <% if (coordinators.length===0) { %>
+                                            <div class="no-data">No coordinators found.</div>
+                                            <% } else { %>
+                                                <div class="row g-3">
+                                                    <% coordinators.forEach(c=> { %>
+                                                        <div class="col-md-4 col-lg-3">
+                                                            <div class="coord-card">
+                                                                <div class="coord-name">
+                                                                    <%= c.tname %>
+                                                                </div>
+                                                                <div class="coord-meta">
+                                                                    <% if (c.bname) { %><i
+                                                                            class="bi bi-diagram-3 me-1"></i>
+                                                                        <%= c.bname %><br>
+                                                                            <% } %>
+                                                                                <% if (c.year) { %><i
+                                                                                        class="bi bi-calendar3 me-1"></i>
+                                                                                    <%= c.year %><br>
+                                                                                        <% } %>
+                                                                                            <% if (c.contact) { %><i
+                                                                                                    class="bi bi-telephone me-1"></i>
+                                                                                                <%= c.contact %>
+                                                                                                    <% } %>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <% }) %>
+                                                </div>
+                                                <% } %>
+                                    </div>
+                                </main>
+
+                                <%- include('partials/_footer') %>
+
+                                    <script
+                                        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

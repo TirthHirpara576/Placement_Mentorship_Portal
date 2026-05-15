@@ -1,0 +1,38 @@
+[
+  {
+    "column_name": "id",
+    "data_type": "integer",
+    "character_maximum_length": null,
+    "column_default": null
+  },
+  {
+    "column_name": "tid",
+    "data_type": "integer",
+    "character_maximum_length": null,
+    "column_default": "'-1'::integer"
+  },
+  {
+    "column_name": "action",
+    "data_type": "character varying",
+    "character_maximum_length": 50,
+    "column_default": null
+  },
+  {
+    "column_name": "category",
+    "data_type": "character varying",
+    "character_maximum_length": 50,
+    "column_default": null
+  },
+  {
+    "column_name": "detail",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "column_default": null
+  },
+  {
+    "column_name": "time",
+    "data_type": "timestamp without time zone",
+    "character_maximum_length": null,
+    "column_default": "CURRENT_TIMESTAMP"
+  }
+]

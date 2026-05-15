@@ -1,0 +1,7 @@
+node_modules/
+.env
+startup_log.txt
+uploads/
+.DS_Store
+npm-debug.log
+yarn-error.log

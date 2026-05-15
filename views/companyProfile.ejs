@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <%= company.cname %> – Placement Mentorship Portal
+    </title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+
+    <% if (typeof isAdmin !=='undefined' && isAdmin) { %>
+        <%- include('partials/_navbar_admin', { activePage: activePage, adminName: adminName }) %>
+            <% } else if (typeof isCoordinator !=='undefined' && isCoordinator) { %>
+                <%- include('partials/_navbar_coord', { activePage: activePage, coordName: coordName }) %>
+                    <% } else { %>
+                        <%- include('partials/_navbar') %>
+                            <% } %>
+
+
+                                <main class="section-wrapper">
+                                    <div class="container" style="max-width:760px;">
+
+                                        <!-- Company Header -->
+                                        <div class="company-profile-header">
+                                            <% if (company.logo) { %>
+                                                <img src="/logos/<%= company.logo %>" alt="<%= company.cname %> logo">
+                                                <% } else { %>
+                                                    <div
+                                                        style="width:120px;height:100px;display:flex;align-items:center;justify-content:center;font-size:3rem;margin:0 auto 0.8rem;">
+                                                        🏢</div>
+                                                    <% } %>
+                                                        <h2>
+                                                            <%= company.cname %>
+                                                        </h2>
+                                        </div>
+
+                                        <!-- Accordion -->
+                                        <div class="accordion profile-accordion" id="profileAccordion">
+
+                                            <!-- Round Details -->
+                                            <div class="accordion-item">
+                                                <h2 class="accordion-header" id="hRound">
+                                                    <button class="accordion-button collapsed" type="button"
+                                                        data-bs-toggle="collapse" data-bs-target="#colRound">
+                                                        Round Details
+                                                    </button>
+                                                </h2>
+                                                <div id="colRound" class="accordion-collapse collapse"
+                                                    data-bs-parent="#profileAccordion">
+                                                    <div class="accordion-body">
+                                                        <% if (rounds.length===0) { %>
+                                                            <p class="no-data" style="padding:0.5rem;">No round details
+                                                                available.</p>
+                                                            <% } else { %>
+                                                                <ul class="round-list">
+                                                                    <% rounds.forEach(r=> { %>
+                                                                        <li>
+                                                                            <%= r.dtext %>
+                                                                        </li>
+                                                                        <% }) %>
+                                                                </ul>
+                                                                <% } %>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Experience Shared By Students -->
+                                            <div class="accordion-item">
+                                                <h2 class="accordion-header" id="hDesc">
+                                                    <button class="accordion-button collapsed" type="button"
+                                                        data-bs-toggle="collapse" data-bs-target="#colDesc">
+                                                        Experience Shared By Students
+                                                    </button>
+                                                </h2>
+                                                <div id="colDesc" class="accordion-collapse collapse"
+                                                    data-bs-parent="#profileAccordion">
+                                                    <div class="accordion-body">
+                                                        <% if (descriptions.length===0) { %>
+                                                            <p class="no-data" style="padding:0.5rem;">No student
+                                                                experiences
+                                                                shared yet.</p>
+                                                            <% } else { %>
+                                                                <% descriptions.forEach(d=> { %>
+                                                                    <div class="desc-card">
+                                                                        <h6>Student Experience</h6>
+                                                                        <ul>
+                                                                            <% d.dtext.split('\n').filter(l=>
+                                                                                l.trim()).forEach(line => { %>
+                                                                                <li>
+                                                                                    <%= line.replace(/^[-•]\s*/, '' ) %>
+                                                                                </li>
+                                                                                <% }) %>
+                                                                        </ul>
+                                                                    </div>
+                                                                    <% }) %>
+                                                                        <% } %>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Students Placed -->
+                                            <div class="accordion-item">
+                                                <h2 class="accordion-header" id="hPlaced">
+                                                    <button class="accordion-button collapsed" type="button"
+                                                        data-bs-toggle="collapse" data-bs-target="#colPlaced">
+                                                        🎓 Students Placed
+                                                    </button>
+                                                </h2>
+                                                <div id="colPlaced" class="accordion-collapse collapse"
+                                                    data-bs-parent="#profileAccordion">
+                                                    <div class="accordion-body">
+                                                        <% if (placed.length===0) { %>
+                                                            <p class="no-data" style="padding:0.5rem;">No students
+                                                                placed data
+                                                                available.</p>
+                                                            <% } else { %>
+                                                                <% placed.forEach(p=> { %>
+                                                                    <div class="placed-row">
+                                                                        <div>
+                                                                            <div class="placed-name">
+                                                                                <%= p.sname %>
+                                                                            </div>
+                                                                            <div class="placed-meta">
+                                                                                <%= p.bname || '' %>&nbsp;
+                                                                                    <% if (p.year) { %>&nbsp;<%= p.year
+                                                                                            %>
+                                                                                            <% } %>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="placed-contact">
+                                                                            <% if (p.contact) { %>
+                                                                                <i class="bi bi-envelope-fill"></i>
+                                                                                <%= p.contact %>
+                                                                                    <% } %>
+                                                                        </div>
+                                                                        <% if (p.package) { %>
+                                                                            <span class="badge-package">
+                                                                                <%= Number(p.package).toFixed(2) %> LPA
+                                                                            </span>
+                                                                            <% } %>
+                                                                    </div>
+                                                                    <% }) %>
+                                                                        <% } %>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div><!-- /accordion -->
+                                    </div>
+                                </main>
+
+                                <%- include('partials/_footer') %>
+
+                                    <script
+                                        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Student Experience – TPC Portal</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <%- include('../partials/_navbar_coord', { activePage: 'dashboard' , coordName: coordName }) %>
+        <main class="section-wrapper">
+            <div class="container">
+                <div class="coord-form-card">
+                    <h2 class="coord-form-title">✏️ Edit Student Experience</h2>
+
+                    <% if (success) { %>
+                        <div class="alert-success-msg">
+                            <%= success %>
+                        </div>
+                        <% } %>
+                            <% if (error) { %>
+                                <div class="alert-error-msg">
+                                    <%= error %>
+                                </div>
+                                <% } %>
+
+                                    <form method="POST" action="/coordinator/edit-experience/<%= record.id %>"
+                                        novalidate>
+
+                                        <div class="form-group-coord">
+                                            <label>Company <span class="req">*</span></label>
+                                            <select class="coord-input" id="cid" name="cid">
+                                                <option value="">-- Select Company --</option>
+                                                <% companies.forEach(c=> { %>
+                                                    <option value="<%= c.cid %>" <%=record.cid==c.cid ? 'selected' : ''
+                                                        %>><%= c.cname %>
+                                                    </option>
+                                                    <% }) %>
+                                            </select>
+                                            <div class="field-error" id="err_cid"></div>
+                                        </div>
+
+                                        <div class="form-group-coord">
+                                            <label>Experience Details <span class="req">*</span></label>
+                                            <textarea class="coord-input" id="dtext" name="dtext" rows="6"
+                                                placeholder="Describe the student experience..."><%= record.dtext %></textarea>
+                                            <div class="field-error" id="err_dtext"></div>
+                                        </div>
+
+                                        <button type="submit" class="coord-submit-btn"
+                                            onclick="return validateExp()">Save Changes</button>
+                                        <a href="/coordinator/profile" class="coord-back-link">← Back to Profile</a>
+                                    </form>
+                </div>
+            </div>
+        </main>
+        <%- include('../partials/_footer') %>
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+            <script>
+                function validateExp() {
+                    let valid = true;
+                    document.querySelectorAll('.field-error').forEach(e => e.textContent = '');
+                    document.querySelectorAll('.input-error').forEach(e => e.classList.remove('input-error'));
+                    const cid = document.getElementById('cid').value;
+                    if (!cid) {
+                        document.getElementById('err_cid').textContent = 'Please select a company.';
+                        document.getElementById('cid').classList.add('input-error');
+                        valid = false;
+                    }
+                    const dtext = document.getElementById('dtext').value.trim();
+                    if (dtext.length < 10) {
+                        document.getElementById('err_dtext').textContent = 'Experience must be at least 10 characters.';
+                        document.getElementById('dtext').classList.add('input-error');
+                        valid = false;
+                    }
+                    return valid;
+                }
+            </script>
+</body>
+
+</html>
